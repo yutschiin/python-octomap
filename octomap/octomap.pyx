@@ -399,7 +399,7 @@ cdef class OcTree:
 
     def readBinary(self, filename):
         cdef defs.istringstream iss
-        if filename.startswith("# Octomap OcTree binary file"):
+        if filename.startswith(b'# Octomap OcTree binary file'):
             iss.str(string(<char*?>filename, len(filename)))
             return self.thisptr.readBinary(<defs.istream&?>iss)
         else:
