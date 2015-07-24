@@ -13,10 +13,17 @@ cdef extern from "<sstream>" namespace "std":
         istringstream(string& s) except +
         string str()
         void str(string& s)
+        istream& read(char*,int)
+        
     cdef cppclass ostringstream:
         ostringstream() except +
         string str()
-
+        
+    cdef cppclass stringstream:
+        stringstream() except +
+        ostream& write(char*,int)
+        string str()
+        
 cdef extern from "octomap/math/Vector3.h" namespace "octomath":
     cdef cppclass Vector3:
         Vector3() except +
@@ -111,6 +118,7 @@ cdef extern from "include_and_setting.h" namespace "octomap":
         bool write(ostream& s)
         bool readBinary(string& filename)
         bool readBinary(istream& s)
+        istream& readBinaryData(istream& s)
         bool writeBinary(string& filename)
         bool writeBinary(ostream& s)
         bool isNodeOccupied(OcTreeNode& occupancyNode)

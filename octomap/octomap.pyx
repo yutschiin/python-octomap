@@ -1,8 +1,14 @@
 from libcpp.string cimport string
+
 from libcpp cimport bool as cppbool
 from libc.string cimport memcpy
 from cython.operator cimport dereference as deref, preincrement as inc, address
+from cpython cimport array as c_array
 cimport octomap_defs as defs
+
+from cpython cimport array as c_array
+from array import array
+
 import numpy as np
 cimport numpy as np
 ctypedef np.float64_t DOUBLE_t
@@ -281,6 +287,26 @@ def _octree_read(filename):
         del tree.thisptr
         tree.thisptr = <defs.OcTree*>tree.thisptr.read(string(<char*?>filename))
         return tree
+        
+def binaryMsgToMap(msg):
+    cdef defs.stringstream datastream
+    cdef OcTree tree = OcTree(0.2)
+    assert(len(msg.data) > 0)
+    cdef c_array.array a = array('b', list(msg.data))
+
+    if msg.binary:
+        datastream.write(<char*?>a.data.as_voidptr,len(msg.data))
+        tree.thisptr.readBinaryData(<defs.istream&?>datastream)
+        return tree
+    else:
+        del tree.thisptr
+        return 
+
+#  std::stringstream datastream;
+#  assert(msg.data.size() > 0);
+#  datastream.write((const char*) &msg.data[0], msg.data.size());
+#  octree->readBinaryData(datastream); 
+
 
 cdef class OcTree:
     """
@@ -404,6 +430,8 @@ cdef class OcTree:
             return self.thisptr.readBinary(<defs.istream&?>iss)
         else:
             return self.thisptr.readBinary(string(<char*?>filename))
+
+    
 
     def writeBinary(self, filename=None):
         cdef defs.ostringstream oss
